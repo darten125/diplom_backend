@@ -1,6 +1,8 @@
 package com.example
 
+import com.example.features.getPreviousTheses.configurePreviousThesesRouting
 import com.example.features.login.configureLoginRouting
+import com.example.features.professorsFeatures.articlesFeatures.configureArticleRouting
 import com.example.features.register.configureRegisterRouting
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -20,6 +22,8 @@ fun main() {
         configureRouting()
         configureRegisterRouting()
         configureLoginRouting()
+        configureArticleRouting()
+        configurePreviousThesesRouting()
     }.start(wait = true)
 }
 

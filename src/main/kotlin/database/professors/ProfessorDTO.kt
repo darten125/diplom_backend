@@ -1,4 +1,10 @@
 package com.example.database.professors
 
-class ProfessorDTO {
-}
+import java.util.*
+
+class ProfessorDTO (
+    val id: UUID,
+    val name: String,
+    val position: String,
+    val department: String
+)

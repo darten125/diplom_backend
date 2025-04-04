@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 object Users: Table("users") {
-    private val id = uuid("id")
+    val id = uuid("id")
     private val name = varchar("name",45)
     private val email = varchar("email", 40)
     private val password = varchar("password", 30)

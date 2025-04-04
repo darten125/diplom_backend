@@ -7,14 +7,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 object Tokens: Table("tokens") {
-    private val id = uuid("id")
+    val id = uuid("id")
     private val email = varchar("email", 40)
     private val token = varchar("token", 50)
 
     fun insert(tokenDTO: TokenDTO){
         transaction {
             Tokens.insert{
-                it[id] = UUID.randomUUID()
+                it[id] = tokenDTO.id
                 it[email]=tokenDTO.email
                 it[token]=tokenDTO.token
             }
