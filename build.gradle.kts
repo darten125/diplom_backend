@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
+    application
 }
 
 group = "com.example"
@@ -41,8 +42,12 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
 }
 
-tasks.jar {
+tasks.jar.configure {
     manifest {
-        attributes["Main-Class"] = "com.example.ApplicationKt"
+        attributes(mapOf("Main-Class" to "org.example.ApplicationKt"))
     }
+    configurations["compileClasspath"].forEach { file: File ->
+        from(zipTree(file.absoluteFile))
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
