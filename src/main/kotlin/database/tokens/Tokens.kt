@@ -1,6 +1,8 @@
 package com.example.database.tokens
 
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -33,6 +35,12 @@ object Tokens: Table("tokens") {
             }
         } catch (e: Exception){
             null
+        }
+    }
+
+    fun deleteById(tokenId: UUID): Boolean {
+        return transaction {
+            deleteWhere { Tokens.id eq tokenId } > 0
         }
     }
 }

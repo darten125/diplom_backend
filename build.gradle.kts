@@ -35,6 +35,9 @@ dependencies {
 
     implementation("org.postgresql:postgresql:42.2.2")
 
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
+
+
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
 }

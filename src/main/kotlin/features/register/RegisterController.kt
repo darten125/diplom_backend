@@ -19,38 +19,45 @@ class RegisterController(private val call: ApplicationCall) {
     suspend fun registerNewUser() {
         val receive = call.receive<RegisterReceiveRemote>()
         if (!receive.email.isValidEmail()){
-            call.respond(HttpStatusCode.BadRequest,"Email is not valid")
-        } else {
-            val userDTO = Users.fetch(receive.email)
+            call.respond(HttpStatusCode.BadRequest, "Email is not valid")
+            return
+        }
 
-            if (userDTO != null){
-                call.respond(HttpStatusCode.Conflict, "User already exists")
-            } else {
-                val token = UUID.randomUUID().toString()
-                try {
-                    Users.insert(
-                        UserDTO(
-                            id = UUID.randomUUID(),
-                            name = receive.name,
-                            email = receive.email,
-                            password = receive.password,
-                            role = receive.role,
-                            currentThesisId = null
-                        )
-                    )
-                } catch (e: ExposedSQLException){
-                    call.respond(HttpStatusCode.Conflict, "User already exists")
-                }
+        val userDTO = Users.fetch(receive.email)
+        if (userDTO != null) {
+            call.respond(HttpStatusCode.Conflict, "User already exists")
+            return
+        }
 
-                Tokens.insert(
-                    TokenDTO(
-                        id = UUID.randomUUID(),
-                        email = receive.email,
-                        token = token
-                    )
+        val token = UUID.randomUUID().toString()
+
+        try {
+            // Пытаемся создать пользователя.
+            Users.insert(
+                UserDTO(
+                    id = UUID.randomUUID(),
+                    name = receive.name,
+                    email = receive.email,
+                    password = receive.password,
+                    role = receive.role,
+                    currentThesisId = null,
+                    userGroup = receive.userGroup
                 )
-                call.respond(RegisterResponseRemote(token=token))
-            }
+            )
+
+            // Если пользователь успешно создан, создаём токен.
+            Tokens.insert(
+                TokenDTO(
+                    id = UUID.randomUUID(),
+                    email = receive.email,
+                    token = token
+                )
+            )
+
+            call.respond(HttpStatusCode.OK, RegisterResponseRemote(token = token))
+        } catch (e: ExposedSQLException) {
+            // Если возникла ошибка при вставке пользователя – токен не создается.
+            call.respond(HttpStatusCode.Conflict, "Registration error")
         }
     }
 }

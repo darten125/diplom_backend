@@ -2,6 +2,7 @@ package com.example.database.previous_theses
 
 import com.example.database.professors.Professors
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -31,6 +32,12 @@ object PreviousTheses : Table("previous_theses") {
                         professorId = it[PreviousTheses.professorId]
                     )
                 }
+        }
+    }
+
+    fun deleteById(thesisId: UUID): Boolean {
+        return transaction {
+            deleteWhere { PreviousTheses.id eq thesisId } > 0
         }
     }
 }

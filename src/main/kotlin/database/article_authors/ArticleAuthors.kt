@@ -2,6 +2,7 @@ package com.example.database.article_authors
 
 import com.example.database.articles.Articles
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -46,5 +47,17 @@ object ArticleAuthors : Table("article_authors") {
                     )
                 }
         }
+    }
+
+    fun deleteByProfessor(professorIdParam: UUID): Int {
+        return transaction {
+            deleteWhere { ArticleAuthors.professorId eq professorIdParam }
+        }
+    }
+
+    // Метод для проверки существования связи
+    fun exists(articleId: UUID, professorId: UUID): Boolean = transaction {
+        select { (ArticleAuthors.articleId eq articleId) and (ArticleAuthors.professorId eq professorId) }
+            .any()
     }
 }

@@ -20,43 +20,77 @@ class ArticleController(private val call: ApplicationCall) {
     suspend fun addNewArticle() {
         val receive = call.receive<AddNewArticleReceiveRemote>()
         try {
-            // 1. Вставляем статью в таблицу articles
-            val articleId = UUID.randomUUID()
-            Articles.insert(
-                ArticleDTO(
-                    id = articleId,
-                    title = receive.title,
-                    link = receive.link
+            // Нормализуем входные данные для ссылки и названия (например, обрезаем пробелы)
+            val normalizedLink = receive.link.trim()
+            val normalizedTitle = receive.title.trim()
+
+            // 1. Проверяем, существует ли уже статья с таким же link
+            val existingArticle = Articles.fetchByLink(normalizedLink)
+            val articleId = if (existingArticle != null) {
+                existingArticle.id
+            } else {
+                // Если не существует, создаем новую статью
+                val newArticleId = UUID.randomUUID()
+                Articles.insert(
+                    ArticleDTO(
+                        id = newArticleId,
+                        title = normalizedTitle,
+                        link = normalizedLink
+                    )
                 )
-            )
+                newArticleId
+            }
 
             // 2. Для каждого автора из списка
+            // Собираем список дублирующихся преподавателей
+            val duplicateAuthors = mutableListOf<String>()
+
             receive.authors.forEach { author ->
-                // Ищем преподавателя по ФИО, кафедре и должности
-                val professorDTO = Professors.fetch(author.name, author.department, author.position)
+                // Нормализуем данные автора
+                val normalizedName = author.name.trim()
+                val normalizedPosition = author.position.trim()
+                val normalizedDepartment = author.department.trim()
+
+                // Вызов метода fetch с правильным порядком параметров: (name, position, department)
+                val professorDTO = Professors.fetch(normalizedName, normalizedPosition, normalizedDepartment)
                 // Если не найден – создаём нового
                 val professorId = professorDTO?.id ?: run {
                     val newProfessorId = UUID.randomUUID()
                     Professors.insert(
                         ProfessorDTO(
                             id = newProfessorId,
-                            name = author.name,
-                            department = author.department,
-                            position = author.position
+                            name = normalizedName,
+                            department = normalizedDepartment,
+                            position = normalizedPosition
                         )
                     )
                     newProfessorId
                 }
-                // 3. Привязываем преподавателя к статье
-                ArticleAuthors.insert(
-                    ArticleAuthorDTO(
-                        id = UUID.randomUUID(),
-                        articleId = articleId,
-                        professorId = professorId
+
+                // 3. Проверяем, является ли преподаватель уже автором этой статьи
+                if (ArticleAuthors.exists(articleId, professorId)) {
+                    duplicateAuthors.add(normalizedName)
+                } else {
+                    ArticleAuthors.insert(
+                        ArticleAuthorDTO(
+                            id = UUID.randomUUID(),
+                            articleId = articleId,
+                            professorId = professorId
+                        )
+                    )
+                }
+            }
+
+            if (duplicateAuthors.isNotEmpty()) {
+                call.respond(
+                    HttpStatusCode.Conflict,
+                    AddNewArticleResponseRemote(
+                        message = "Дублирование: преподаватель(и) ${duplicateAuthors.joinToString(", ")} уже является(ются) автором данной статьи"
                     )
                 )
+            } else {
+                call.respond(HttpStatusCode.OK, AddNewArticleResponseRemote(message = "Статья успешно добавлена"))
             }
-            call.respond(HttpStatusCode.OK, AddNewArticleResponseRemote(message = "Статья успешно добавлена"))
         } catch (e: ExposedSQLException) {
             call.respond(HttpStatusCode.Conflict, "Ошибка при добавлении статьи: ${e.localizedMessage}")
         }

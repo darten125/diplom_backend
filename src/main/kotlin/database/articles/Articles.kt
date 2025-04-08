@@ -33,4 +33,19 @@ object Articles : Table("articles") {
                 }
         }
     }
+
+    fun fetchByLink(link: String): ArticleDTO? {
+        val normalizedLink = link.trim().lowercase()
+        return transaction {
+            Articles.select { Articles.link.lowerCase() eq normalizedLink }
+                .singleOrNull()
+                ?.let {
+                    ArticleDTO(
+                        id = it[Articles.id],
+                        title = it[Articles.title],
+                        link = it[Articles.link]
+                    )
+                }
+        }
+    }
 }

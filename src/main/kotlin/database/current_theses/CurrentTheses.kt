@@ -3,6 +3,7 @@ package com.example.database.current_theses
 import com.example.database.professors.Professors
 import com.example.database.users.Users
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -39,6 +40,39 @@ object CurrentTheses : Table("current_theses") {
                         description = it[CurrentTheses.description]
                     )
                 }
+        }
+    }
+
+    fun fetchByProfessor(professorIdParam: UUID): List<CurrentThesisDTO> {
+        return transaction {
+            select { CurrentTheses.professorId eq professorIdParam }
+                .map {
+                    CurrentThesisDTO(
+                        id = it[CurrentTheses.id],
+                        studentId = it[CurrentTheses.studentId],
+                        professorId = it[CurrentTheses.professorId],
+                        title = it[CurrentTheses.title],
+                        description = it[CurrentTheses.description]
+                    )
+                }
+        }
+    }
+
+    fun fetchAll(): List<CurrentThesisDTO> = transaction {
+        selectAll().map {
+            CurrentThesisDTO(
+                id = it[CurrentTheses.id],
+                studentId = it[CurrentTheses.studentId],
+                professorId = it[CurrentTheses.professorId],
+                title = it[CurrentTheses.title],
+                description = it[CurrentTheses.description]
+            )
+        }
+    }
+
+    fun deleteById(thesisId: UUID): Boolean {
+        return transaction {
+            deleteWhere { CurrentTheses.id eq thesisId } > 0
         }
     }
 }

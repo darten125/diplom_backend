@@ -12,8 +12,8 @@ data class AddNewArticleReceiveRemote(
 @Serializable
 data class AuthorRemote(
     val name: String,
-    val department: String,
-    val position: String
+    val position: String,
+    val department: String
 )
 
 @Serializable

@@ -9,10 +9,5 @@ fun Application.configureLoginRouting() {
             val loginController = LoginController(call)
             loginController.performLogin()
         }
-
-        get("/validate-token") {
-            val loginController = LoginController(call)
-            loginController.validateToken()
-        }
     }
 }

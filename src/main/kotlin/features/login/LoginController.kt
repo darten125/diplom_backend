@@ -33,28 +33,4 @@ class LoginController(private val call: ApplicationCall) {
             }
         }
     }
-
-    suspend fun validateToken() {
-        // Извлекаем заголовок Authorization (ожидаем "Bearer <token>")
-        val authHeader = call.request.headers["Authorization"]
-        if (authHeader.isNullOrBlank()) {
-            call.respond(HttpStatusCode.Unauthorized, "No token provided")
-            return
-        }
-
-        // Убираем префикс "Bearer" и очищаем пробелы
-        val token = authHeader.removePrefix("Bearer").trim()
-        if (token.isEmpty()) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token format")
-            return
-        }
-
-        // Проверяем наличие токена в базе данных
-        val tokenDTO = Tokens.fetch(token)
-        if (tokenDTO == null) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid token")
-        } else {
-            call.respond(HttpStatusCode.OK, "Token is valid")
-        }
-    }
 }

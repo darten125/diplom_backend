@@ -1,10 +1,9 @@
 package com.example.database.professors
 
-
-import com.example.database.professors.Professors.update
-import com.example.database.tokens.Tokens
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 object Professors: Table("professors") {
     val id = uuid("id")
@@ -48,6 +47,22 @@ object Professors: Table("professors") {
         }
     }
 
+    fun fetchAll(): List<ProfessorDTO> {
+        return transaction {
+            Professors
+                .selectAll()
+                .orderBy(Professors.department to SortOrder.ASC)
+                .map {
+                    ProfessorDTO(
+                        id = it[Professors.id],
+                        name = it[Professors.name],
+                        position = it[Professors.position],
+                        department = it[Professors.department]
+                    )
+                }
+        }
+    }
+
     fun update(name: String, oldPosition: String, oldDepartment: String, newPosition: String, newDepartment: String): Boolean {
         return try {
             transaction {
@@ -63,6 +78,27 @@ object Professors: Table("professors") {
             }
         } catch (e: Exception) {
             false
+        }
+    }
+
+    fun fetchById(professorId: UUID): ProfessorDTO? {
+        return transaction {
+            Professors.select { Professors.id eq professorId }
+                .map {
+                    ProfessorDTO(
+                        id = it[Professors.id],
+                        name = it[Professors.name],
+                        position = it[Professors.position],
+                        department = it[Professors.department]
+                    )
+                }
+                .singleOrNull()
+        }
+    }
+
+    fun deleteById(professorId: UUID): Boolean {
+        return transaction {
+            deleteWhere { id eq professorId } > 0
         }
     }
 

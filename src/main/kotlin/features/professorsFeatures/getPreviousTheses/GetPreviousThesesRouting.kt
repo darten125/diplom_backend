@@ -10,5 +10,10 @@ fun Application.configurePreviousThesesRouting() {
             val controller = GetPreviousThesesController(call)
             controller.getPreviousTheses()
         }
+
+        post("/push-previous-theses") {
+            val controller = GetPreviousThesesController(call)
+            controller.pushPreviousTheses()
+        }
     }
 }

@@ -8,5 +8,6 @@ class UserDTO (
     val email: String,
     val password: String,
     val role: String,
-    val currentThesisId: UUID?
+    val currentThesisId: UUID?,
+    val userGroup: String
 )
