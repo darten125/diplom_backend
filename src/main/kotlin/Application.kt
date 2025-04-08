@@ -13,17 +13,29 @@ import com.example.features.userFeatures.currentThesesFeatures.configureCurrentT
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import org.jetbrains.exposed.sql.Database
+import io.ktor.server.cio.CIO
 
 
 fun main() {
+    val databaseUrl = System.getenv("DATABASE_URL")
+        ?: error("DATABASE_URL is not set in environment variables")
+
+    val regex = Regex("""postgres(?:ql)?://(.*?):(.*?)@(.*?):(\d+)/(.*)""")
+    val matchResult = regex.matchEntire(databaseUrl)
+        ?: error("Invalid DATABASE_URL format: $databaseUrl")
+
+    val (user, password, host, port, dbname) = matchResult.destructured
+
+    val jdbcUrl = "jdbc:postgresql://$host:$port/$dbname"
+
     Database.connect(
-        url = "jdbc:postgresql://localhost:5433/diplom",
+        url = jdbcUrl,
         driver = "org.postgresql.Driver",
-        user = "postgres",
-        password = "1234"
+        user = user,
+        password = password
     )
 
-    embeddedServer(io.ktor.server.cio.CIO, port = 8080, host = "0.0.0.0") {
+    embeddedServer(io.ktor.server.cio.CIO, port = System.getenv("PORT")?.toInt() ?: 8080, host = "0.0.0.0") {
         configureSerialization()
         configureRouting()
         configureRegisterRouting()
