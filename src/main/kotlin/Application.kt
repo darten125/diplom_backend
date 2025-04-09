@@ -13,6 +13,8 @@ import com.example.features.userFeatures.currentThesesFeatures.configureCurrentT
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import org.jetbrains.exposed.sql.Database
+import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.http.HttpHeaders
 import io.ktor.server.cio.CIO
 
 
@@ -36,6 +38,15 @@ fun main() {
     )
 
     embeddedServer(io.ktor.server.cio.CIO, port = System.getenv("PORT")?.toInt() ?: 8080, host = "0.0.0.0") {
+
+        install(CORS) {
+            anyHost()
+            allowHeader(HttpHeaders.ContentType)
+            allowHeader(HttpHeaders.Authorization)
+            allowCredentials = true
+            allowNonSimpleContentTypes = true
+        }
+
         configureSerialization()
         configureRouting()
         configureRegisterRouting()

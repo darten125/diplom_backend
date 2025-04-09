@@ -37,6 +37,7 @@ dependencies {
 
     implementation("org.apache.poi:poi-ooxml:5.2.3")
 
+    implementation("io.ktor:ktor-server-cors:3.1.1")
 
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
