@@ -57,7 +57,7 @@ class RegisterController(private val call: ApplicationCall) {
             call.respond(HttpStatusCode.OK, RegisterResponseRemote(token = token))
         } catch (e: ExposedSQLException) {
             // Если возникла ошибка при вставке пользователя – токен не создается.
-            call.respond(HttpStatusCode.Conflict, "Registration error")
+            call.respond(HttpStatusCode.Conflict, "Registration error: ${e.localizedMessage}")
         }
     }
 }
