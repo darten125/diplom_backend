@@ -44,7 +44,7 @@ dependencies {
 
 tasks.jar.configure {
     manifest {
-        attributes(mapOf("Main-Class" to "org.example.ApplicationKt"))
+        attributes(mapOf("Main-Class" to "com.example.ApplicationKt"))
     }
     configurations["compileClasspath"].forEach { file: File ->
         from(zipTree(file.absoluteFile))
