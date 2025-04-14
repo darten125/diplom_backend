@@ -9,3 +9,24 @@ data class CreatePendingRequestRemote(
     val thesisTitle: String,
     val description: String
 )
+
+@Serializable
+data class GetPendingRequestsForUserRequest(
+    val studentId: String
+)
+
+@Serializable
+data class PendingRequestResponse(
+    val id: String,
+    val professorName: String,
+    val professorPosition: String,
+    val professorDepartment: String,
+    val thesisTitle: String,
+    val description: String,
+    val accepted: Boolean?
+)
+
+@Serializable
+data class GetPendingRequestsForUserResponse(
+    val requests: List<PendingRequestResponse>
+)

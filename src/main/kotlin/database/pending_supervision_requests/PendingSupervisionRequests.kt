@@ -56,9 +56,25 @@ object PendingSupervisionRequests : Table("pending_supervision_requests") {
             .singleOrNull()
     }
 
-    fun fetchByProfessor(professorIdParam: UUID): List<PendingSupervisionRequestDTO> {
+    fun fetchByProfessor(professorId: UUID): List<PendingSupervisionRequestDTO> {
         return transaction {
-            select { PendingSupervisionRequests.professorId eq professorIdParam }
+            select { PendingSupervisionRequests.professorId eq professorId }
+                .map {
+                    PendingSupervisionRequestDTO(
+                        id = it[PendingSupervisionRequests.id],
+                        studentId = it[PendingSupervisionRequests.studentId],
+                        professorId = it[PendingSupervisionRequests.professorId],
+                        thesisTitle = it[PendingSupervisionRequests.thesisTitle],
+                        description = it[PendingSupervisionRequests.description],
+                        accepted = it[PendingSupervisionRequests.accepted]
+                    )
+                }
+        }
+    }
+
+    fun fetchByStudent(studentId: UUID): List<PendingSupervisionRequestDTO> {
+        return transaction {
+            select { PendingSupervisionRequests.studentId eq studentId }
                 .map {
                     PendingSupervisionRequestDTO(
                         id = it[PendingSupervisionRequests.id],
