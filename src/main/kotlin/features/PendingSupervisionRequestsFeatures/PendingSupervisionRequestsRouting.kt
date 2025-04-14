@@ -18,7 +18,7 @@ fun Application.configurePendingSupervisionRequestsRouting() {
 
         post("/get-user-pending-requests-list") {
             val controller = PendingSupervisionRequestController(call)
-            controller.getPendingRequestsList()
+            controller.getUserPendingRequestsList()
         }
     }
 }

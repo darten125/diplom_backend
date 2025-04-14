@@ -2,7 +2,6 @@ package com.example.features.PendingSupervisionRequestsFeatures
 
 import com.example.database.pending_supervision_requests.PendingSupervisionRequestDTO
 import com.example.database.pending_supervision_requests.PendingSupervisionRequests
-import com.example.database.processed_requests.ProcessedRequests
 import com.example.database.users.Users
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -11,9 +10,6 @@ import io.ktor.server.response.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.util.*
 import com.example.database.professors.Professors
-import com.example.features.ProcessedRequestsFeatures.GetProcessedRequestsForUserRequest
-import com.example.features.ProcessedRequestsFeatures.GetProcessedRequestsForUserResponse
-import com.example.features.ProcessedRequestsFeatures.ProcessedRequestResponse
 import java.io.ByteArrayOutputStream
 
 class PendingSupervisionRequestController(private val call: ApplicationCall) {
@@ -89,7 +85,7 @@ class PendingSupervisionRequestController(private val call: ApplicationCall) {
         )
     }
 
-    suspend fun getUserProcessedRequests() {
+    suspend fun getUserPendingRequestsList() {
         val request = call.receive<GetPendingRequestsForUserRequest>()
         val studentUUID = try {
             UUID.fromString(request.studentId)
