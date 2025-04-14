@@ -10,7 +10,7 @@ fun Application.configureArticleRouting() {
             controller.addNewArticle()
         }
 
-        get("/get-all-articles") {
+        post("/get-all-articles") {
             val controller = ArticleController(call)
             controller.getAllArticles()
         }

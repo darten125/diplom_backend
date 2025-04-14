@@ -20,16 +20,13 @@ class ArticleController(private val call: ApplicationCall) {
     suspend fun addNewArticle() {
         val receive = call.receive<AddNewArticleReceiveRemote>()
         try {
-            // Нормализуем входные данные для ссылки и названия (например, обрезаем пробелы)
             val normalizedLink = receive.link.trim()
             val normalizedTitle = receive.title.trim()
 
-            // 1. Проверяем, существует ли уже статья с таким же link
             val existingArticle = Articles.fetchByLink(normalizedLink)
             val articleId = if (existingArticle != null) {
                 existingArticle.id
             } else {
-                // Если не существует, создаем новую статью
                 val newArticleId = UUID.randomUUID()
                 Articles.insert(
                     ArticleDTO(
@@ -41,19 +38,14 @@ class ArticleController(private val call: ApplicationCall) {
                 newArticleId
             }
 
-            // 2. Для каждого автора из списка
-            // Собираем список дублирующихся преподавателей
             val duplicateAuthors = mutableListOf<String>()
 
             receive.authors.forEach { author ->
-                // Нормализуем данные автора
                 val normalizedName = author.name.trim()
                 val normalizedPosition = author.position.trim()
                 val normalizedDepartment = author.department.trim()
 
-                // Вызов метода fetch с правильным порядком параметров: (name, position, department)
                 val professorDTO = Professors.fetch(normalizedName, normalizedPosition, normalizedDepartment)
-                // Если не найден – создаём нового
                 val professorId = professorDTO?.id ?: run {
                     val newProfessorId = UUID.randomUUID()
                     Professors.insert(
@@ -67,7 +59,6 @@ class ArticleController(private val call: ApplicationCall) {
                     newProfessorId
                 }
 
-                // 3. Проверяем, является ли преподаватель уже автором этой статьи
                 if (ArticleAuthors.exists(articleId, professorId)) {
                     duplicateAuthors.add(normalizedName)
                 } else {
@@ -97,17 +88,14 @@ class ArticleController(private val call: ApplicationCall) {
     }
 
     suspend fun getAllArticles() {
-        // Получаем данные из запроса
         val receive = call.receive<AuthorRemote>()
 
-        // Ищем преподавателя
         val professorDTO = Professors.fetch(receive.name, receive.position, receive.department)
         if (professorDTO == null) {
             call.respond(HttpStatusCode.NotFound, "Преподаватель не найден")
             return
         }
 
-        // Ищем статьи, в которых он автор
         val articleIds = ArticleAuthors.fetchByProfessor(professorDTO.id)
             .map { it.articleId }
             .toSet()
@@ -117,12 +105,10 @@ class ArticleController(private val call: ApplicationCall) {
             return
         }
 
-        // Получаем статьи по ID
         val articles = articleIds.mapNotNull { articleId ->
             Articles.fetchById(articleId)
         }
 
-        // Формируем ответ
         val responseList = articles.map { article ->
             ArticleRemote(
                 title = article.title,

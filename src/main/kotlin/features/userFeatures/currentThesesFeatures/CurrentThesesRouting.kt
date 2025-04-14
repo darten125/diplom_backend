@@ -10,7 +10,7 @@ fun Application.configureCurrentThesisRouting() {
             controller.create()
         }
 
-        get("/get-current-thesis") {
+        post("/get-current-thesis") {
             val controller = CurrentThesesController(call)
             controller.get()
         }

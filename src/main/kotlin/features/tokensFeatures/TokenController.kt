@@ -11,7 +11,6 @@ import java.util.*
 class TokenController(private val call: ApplicationCall) {
 
     suspend fun validateToken() {
-        // Получаем JSON из тела запроса, ожидая объект { "token": "..." }
         val tokenRequest = try {
             call.receive<TokenValidationReceiveRemote>()
         } catch (e: Exception) {
@@ -25,17 +24,14 @@ class TokenController(private val call: ApplicationCall) {
             return
         }
 
-        // Находим запись токена в базе
         val tokenDTO = Tokens.fetch(token)
         if (tokenDTO == null) {
             call.respond(HttpStatusCode.Unauthorized, "Invalid token")
         } else {
-            // Ищем пользователя по email из токена
             val userDTO = Users.fetch(tokenDTO.email)
             if (userDTO == null) {
                 call.respond(HttpStatusCode.NotFound, "User not found for token")
             } else {
-                // Преобразуем UserDTO в сериализуемый DTO
                 val response = TokenValidationResponseRemote(
                     id = userDTO.id.toString(),
                     name = userDTO.name,

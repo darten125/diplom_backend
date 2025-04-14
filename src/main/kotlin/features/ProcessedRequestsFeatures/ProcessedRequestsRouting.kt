@@ -10,7 +10,7 @@ fun Application.configureProcessedRequestsRouting() {
             val controller = ProcessedRequestsController(call)
             controller.pushProcessedRequests()
         }
-        get("/get-user-processed-requests") {
+        post("/get-user-processed-requests") {
             val controller = ProcessedRequestsController(call)
             controller.getUserProcessedRequests()
         }

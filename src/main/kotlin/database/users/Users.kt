@@ -19,7 +19,7 @@ object Users: Table("users") {
     fun insert(userDTO: UserDTO){
         transaction {
             Users.insert{
-                it[id] = userDTO.id // Генерируем UUID
+                it[id] = userDTO.id
                 it[name]=userDTO.name
                 it[email]=userDTO.email
                 it[password]=userDTO.password

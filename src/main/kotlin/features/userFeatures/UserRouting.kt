@@ -7,7 +7,7 @@ import io.ktor.server.routing.get
 
 fun Application.configureUserRouting() {
     routing {
-        get("/get-user-data") {
+        post("/get-user-data") {
             val controller = UserController(call)
             controller.get()
         }

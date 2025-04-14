@@ -14,7 +14,6 @@ import java.util.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayOutputStream
 
-// Функция для преобразования роли
 private fun mapRole(role: String): String = when(role.lowercase()) {
     "bac" -> "Бакалавриат"
     "mag" -> "Магистратура"
@@ -25,7 +24,6 @@ class CurrentThesesController(private val call: ApplicationCall) {
     suspend fun create() {
         val receive = call.receive<CreateCurrentThesisReceiveRemote>()
         try {
-            // Парсим id из processed_requests
             val processedRequestUUID = UUID.fromString(receive.processedRequestId)
             val processedRequest = ProcessedRequests.fetchById(processedRequestUUID)
 
@@ -34,13 +32,11 @@ class CurrentThesesController(private val call: ApplicationCall) {
                 return
             }
 
-            // Извлекаем данные из полученной записи
             val studentUUID = processedRequest.studentId
             val professorUUID = processedRequest.professorId
             val title = processedRequest.thesisTitle
             val description = processedRequest.description
 
-            // Генерируем новый id для текущей дипломной работы
             val newThesisId = UUID.randomUUID()
             CurrentTheses.insert(
                 CurrentThesisDTO(
@@ -52,10 +48,8 @@ class CurrentThesesController(private val call: ApplicationCall) {
                 )
             )
 
-            // Обновляем информацию о текущей работе у пользователя
             Users.updateCurrentThesis(studentUUID, newThesisId)
 
-            // Удаляем все записи из processed_requests для данного студента
             ProcessedRequests.deleteByStudent(studentUUID)
 
             call.respond(
@@ -74,7 +68,6 @@ class CurrentThesesController(private val call: ApplicationCall) {
             val currentThesis = CurrentTheses.fetchByStudent(studentUUID)
 
             val responseThesis = currentThesis?.let { thesis ->
-                // Получаем данные преподавателя по professorId
                 val professorDTO = Professors.fetchById(thesis.professorId)
                 CurrentThesisResponseRemote(
                     professorName = professorDTO?.name ?: "N/A",
@@ -104,17 +97,14 @@ class CurrentThesesController(private val call: ApplicationCall) {
             Triple(thesis, student, professor)
         }
 
-        // Сортировка: по роли (преобразованной) и затем по группе.
         val sortedList = enrichedList.sortedWith(compareBy(
             { mapRole(it.second.role).lowercase() },
             { it.second.userGroup.lowercase() }
         ))
 
-        // Создаем Excel-книгу и лист.
         val workbook = XSSFWorkbook()
         val sheet = workbook.createSheet("Current Theses")
 
-        // Заголовки столбцов (id не отображается)
         val header = sheet.createRow(0)
         header.createCell(0).setCellValue("Student Name")
         header.createCell(1).setCellValue("Group")
@@ -138,12 +128,10 @@ class CurrentThesesController(private val call: ApplicationCall) {
             row.createCell(7).setCellValue(thesis.description)
         }
 
-        // Выгружаем Excel-книгу в байтовый массив
         val outputStream = ByteArrayOutputStream()
         workbook.write(outputStream)
         workbook.close()
 
-        // Отправляем файл клиенту с корректным MIME-типом
         call.response.header(HttpHeaders.ContentDisposition, "attachment; filename=current_theses.xlsx")
         call.respondBytes(
             bytes = outputStream.toByteArray(),

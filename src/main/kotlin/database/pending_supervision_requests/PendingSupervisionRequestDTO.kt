@@ -8,5 +8,5 @@ class PendingSupervisionRequestDTO(
     val professorId: UUID,
     val thesisTitle: String,
     val description: String,
-    val accepted: Boolean? // null по умолчанию — ещё не обработано
+    val accepted: Boolean?
 )

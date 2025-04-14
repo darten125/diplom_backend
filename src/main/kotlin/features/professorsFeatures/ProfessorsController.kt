@@ -51,7 +51,6 @@ class ProfessorsController(private val call: ApplicationCall) {
     suspend fun deleteProfessor() {
         val receive = call.receive<DeleteProfessorReceiveRemote>()
 
-        // Ищем преподавателя по имени, должности и кафедре
         val professorDTO = Professors.fetch(receive.name, receive.position, receive.department)
         if (professorDTO == null) {
             call.respond(HttpStatusCode.NotFound, "Преподаватель не найден")
@@ -59,29 +58,22 @@ class ProfessorsController(private val call: ApplicationCall) {
         }
         val professorId = professorDTO.id
         try {
-            // 1. Удаляем все записи из ArticleAuthors для этого преподавателя.
             ArticleAuthors.deleteByProfessor(professorId)
 
-            // 2. Обрабатываем текущие дипломные работы (CurrentTheses):
-            //    Для каждой записи, где указан этот преподаватель, обновляем пользователя, сбрасывая current_thesis_id в null,
-            //    и удаляем запись из CurrentTheses.
             val currentTheses = CurrentTheses.fetchByProfessor(professorId)
             currentTheses.forEach { thesis ->
                 Users.updateCurrentThesis(thesis.studentId, null)
                 CurrentTheses.deleteById(thesis.id)
             }
 
-            // 3. Удаляем все записи из PendingSupervisionRequests для этого преподавателя.
             transaction {
                 PendingSupervisionRequests.deleteWhere { PendingSupervisionRequests.professorId eq professorId }
             }
 
-            // 4. Удаляем все записи из ProcessedRequests для этого преподавателя.
             transaction {
                 ProcessedRequests.deleteWhere { ProcessedRequests.professorId eq professorId }
             }
 
-            // 5. Удаляем преподавателя из таблицы Professors.
             val deleted = Professors.deleteById(professorId)
             if (deleted) {
                 call.respond(HttpStatusCode.OK, "Преподаватель и связанные данные успешно удалены")

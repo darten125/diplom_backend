@@ -6,7 +6,7 @@ import io.ktor.server.routing.*
 
 fun Application.configurePreviousThesesRouting() {
     routing {
-        get("/get-previous-theses") {
+        post("/get-previous-theses") {
             val controller = GetPreviousThesesController(call)
             controller.getPreviousTheses()
         }

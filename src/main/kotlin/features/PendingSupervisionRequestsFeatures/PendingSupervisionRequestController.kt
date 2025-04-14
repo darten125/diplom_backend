@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream
 
 class PendingSupervisionRequestController(private val call: ApplicationCall) {
 
-    // Создание новой записи
     suspend fun createPendingRequest() {
         val request = call.receive<CreatePendingRequestRemote>()
         val dto = PendingSupervisionRequestDTO(
@@ -23,13 +22,12 @@ class PendingSupervisionRequestController(private val call: ApplicationCall) {
             professorId = UUID.fromString(request.professorId),
             thesisTitle = request.thesisTitle,
             description = request.description,
-            accepted = null // по умолчанию запрос ещё не обработан
+            accepted = null
         )
         PendingSupervisionRequests.insert(dto)
         call.respond(HttpStatusCode.OK, "Запрос успешно создан")
     }
 
-    // Экспорт данных в Excel
     suspend fun getPendingRequestsList() {
         val list = PendingSupervisionRequests.fetchAll()
 
@@ -37,12 +35,11 @@ class PendingSupervisionRequestController(private val call: ApplicationCall) {
             val studentName = Users.getNameById(req.studentId) ?: req.studentId.toString()
             val studentGroup = Users.getUserGroupById(req.studentId) ?: "N/A"
             Triple(req, studentName, studentGroup)
-        }.sortedBy { it.third }  // сортировка по группе
+        }.sortedBy { it.third }
 
         val workbook = XSSFWorkbook()
         val sheet = workbook.createSheet("Pending Supervision Requests")
 
-        // Заголовки столбцов: добавлены колонки для должности и кафедры преподавателя
         val header = sheet.createRow(0)
         header.createCell(0).setCellValue("ID")
         header.createCell(1).setCellValue("Student Name")
@@ -57,7 +54,6 @@ class PendingSupervisionRequestController(private val call: ApplicationCall) {
         var rowIndex = 1
         for ((req, studentName, studentGroup) in enrichedRequests) {
 
-            // Получаем данные преподавателя через метод fetchById
             val professorDTO = Professors.fetchById(req.professorId)
             val professorName = professorDTO?.name ?: req.professorId.toString()
             val professorPosition = professorDTO?.position ?: "N/A"

@@ -8,7 +8,7 @@ import io.ktor.server.routing.get
 
 fun Application.configureTokenRouting() {
     routing {
-        get("/validate-token") {
+        post("/validate-token") {
             val controller = TokenController(call)
             controller.validateToken()
         }

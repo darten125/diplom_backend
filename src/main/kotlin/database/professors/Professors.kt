@@ -31,7 +31,7 @@ object Professors: Table("professors") {
                                 (Professors.position eq position) and
                                 (Professors.department eq department)
                     }
-                    .singleOrNull() // Используем singleOrNull для безопасного получения одного элемента
+                    .singleOrNull()
 
                 professorModel?.let {
                     ProfessorDTO(
@@ -74,7 +74,7 @@ object Professors: Table("professors") {
                     it[position] = newPosition
                     it[department] = newDepartment
                 }
-                updatedRows > 0 // Возвращаем true, если хотя бы одна строка обновлена
+                updatedRows > 0
             }
         } catch (e: Exception) {
             false

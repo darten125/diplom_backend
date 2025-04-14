@@ -32,7 +32,6 @@ class RegisterController(private val call: ApplicationCall) {
         val token = UUID.randomUUID().toString()
 
         try {
-            // Пытаемся создать пользователя.
             Users.insert(
                 UserDTO(
                     id = UUID.randomUUID(),
@@ -45,7 +44,6 @@ class RegisterController(private val call: ApplicationCall) {
                 )
             )
 
-            // Если пользователь успешно создан, создаём токен.
             Tokens.insert(
                 TokenDTO(
                     id = UUID.randomUUID(),
@@ -56,7 +54,6 @@ class RegisterController(private val call: ApplicationCall) {
 
             call.respond(HttpStatusCode.OK, RegisterResponseRemote(token = token))
         } catch (e: ExposedSQLException) {
-            // Если возникла ошибка при вставке пользователя – токен не создается.
             call.respond(HttpStatusCode.Conflict, "Registration error: ${e.localizedMessage}")
         }
     }

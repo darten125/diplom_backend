@@ -14,6 +14,6 @@ data class GetUserDataResponseRemote(
     val email: String,
     val password: String,
     val role: String,
-    val currentThesisId: String?, // может быть null
+    val currentThesisId: String?,
     val userGroup: String
 )
