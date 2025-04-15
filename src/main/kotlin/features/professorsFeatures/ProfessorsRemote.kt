@@ -4,6 +4,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetAllProfessorsResponse(
+    val professors: List<ProfessorsRemote>
+)
+
+@Serializable
+data class ProfessorsRemote(
+    val id: String,
     val name: String,
     val position: String,
     val department: String

@@ -19,14 +19,15 @@ class ProfessorsController(private val call: ApplicationCall) {
 
     suspend fun getAllProfessors() {
         try {
-            val professors = Professors.fetchAll().map {
-                GetAllProfessorsResponse(
-                    name = it.name,
-                    position = it.position,
-                    department = it.department
+            val professorsList = Professors.fetchAll().map { professor ->
+                ProfessorsRemote(
+                    id = professor.id.toString(),
+                    name = professor.name,
+                    position = professor.position,
+                    department = professor.department
                 )
             }
-            call.respond(HttpStatusCode.OK, professors)
+            call.respond(HttpStatusCode.OK, GetAllProfessorsResponse(professors = professorsList))
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Ошибка при получении списка преподавателей")
         }

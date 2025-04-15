@@ -11,6 +11,11 @@ data class CreatePendingRequestRemote(
 )
 
 @Serializable
+data class CreatePendingRequestResponse(
+    val message: String
+)
+
+@Serializable
 data class GetPendingRequestsForUserRequest(
     val studentId: String
 )

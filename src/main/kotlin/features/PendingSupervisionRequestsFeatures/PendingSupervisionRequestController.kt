@@ -25,7 +25,7 @@ class PendingSupervisionRequestController(private val call: ApplicationCall) {
             accepted = null
         )
         PendingSupervisionRequests.insert(dto)
-        call.respond(HttpStatusCode.OK, "Запрос успешно создан")
+        call.respond(HttpStatusCode.OK, CreatePendingRequestResponse(message = "Success"))
     }
 
     suspend fun getPendingRequestsList() {
