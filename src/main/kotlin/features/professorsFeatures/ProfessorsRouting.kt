@@ -7,7 +7,7 @@ import io.ktor.server.routing.get
 
 fun Application.configureProfessorsRouting() {
     routing {
-        get("/get-all-professors") {
+        post("/get-all-professors") {
             val controller = ProfessorsController(call)
             controller.getAllProfessors()
         }
